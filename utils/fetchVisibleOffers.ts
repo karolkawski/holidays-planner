@@ -22,15 +22,15 @@ export async function fetchVisibleItems(page: Page): Promise<IOffer[]> {
         const addedElement = product.querySelector(
           ".item__content .item__date"
         );
-        const added = addedElement ? addedElement.getAttribute("title") : null;
+        const published = addedElement ? addedElement.getAttribute("title") : null;
 
         const urlElement = product.querySelector(
           ".item__content .item__title a"
         );
         const url = urlElement ? urlElement.getAttribute("href") : null;
 
-        if (isOffer && title && added && url) {
-          data.push({ isSoldout, title, added, url, checked: false });
+        if (isOffer && title && published && url) {
+          data.push({ isSoldout, title, published, url, checked: false });
         }
       } catch (error) {
         console.warn("Error while fetching product data:", error);

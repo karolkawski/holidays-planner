@@ -4,25 +4,39 @@ export async function dataProcessing(offers: IOffer[]): Promise<IOffer[]> {
   const processedOffers: IOffer[] = []; // Typowanie przetworzonych ofert
 
   offers.forEach((offer) => {
-    const { title } = offer; // Poprawiona destrukturyzacja
+    const { title, published } = offer; // Poprawiona destrukturyzacja
     offer.from = getFrom(title); // Użycie funkcji getFrom
+    offer.published = formatTime(published)
     processedOffers.push(offer);
   });
-
-  // console.log("🚀 ~ dataProcessing ~ processedOffers:", processedOffers);
 
   return processedOffers; // Zwracanie przetworzonych ofert
 }
 
-const getFrom = (title: string): string => {
+const formatTime = (date: string | null) => {
+
+    if (!date) {
+        return '---'
+    }
+
+    const formatToDste = parsePublished(date);
+
+    const day = String(formatToDste.getUTCDate()).padStart(2, "0");
+    const month = String(formatToDste.getUTCMonth() + 1).padStart(2, "0");
+    const year = formatToDste.getUTCFullYear();
+
+    return `${day}-${month}-${year}`;
+}
+
+const getFrom = (title: string | null): string => {
 
     if (!title) {
         return 'undefined'
     }
-    
+
   const citys: Record<CityKey, { phases: string[]; name: string }> = {
     gdansk: {
-      phases: ["z Gdańska"],
+      phases: ["z Gdańska", "lub Gdańska"],
       name: "Gdańsk",
     },
     warszawa: {
@@ -39,4 +53,39 @@ const getFrom = (title: string): string => {
     );
 
     return foundCityKey ? citys[foundCityKey].name : ""; 
+};
+
+
+
+
+const parsePublished = (dateString: string) => {
+
+    const monthMap = {
+    stycznia: 0,
+    lutego: 1,
+    marca: 2,
+    kwietnia: 3,
+    maja: 4,
+    czerwca: 5,
+    lipca: 6,
+    sierpnia: 7,
+    września: 8,
+    października: 9,
+    listopada: 10,
+    grudnia: 11,
+    };
+
+    const [datePart, timePart] = dateString.split(", ");
+    const [day, monthName, year] = datePart.split(" ");
+    const [hour, minute] = timePart.split(":");
+
+    const month = monthMap[monthName];
+    const dayNumber = parseInt(day, 10);
+    const yearNumber = parseInt(year, 10);
+    const hourNumber = parseInt(hour, 10);
+    const minuteNumber = parseInt(minute, 10);
+
+    return new Date(
+    Date.UTC(yearNumber, month, dayNumber, hourNumber, minuteNumber)
+    );
 };

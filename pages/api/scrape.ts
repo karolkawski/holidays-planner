@@ -4,6 +4,7 @@ import fs from "fs";
 import { autoScroll } from "@/utils/autoScroll";
 import { fetchVisibleItems } from "@/utils/fetchVisibleOffers";
 import { fetchDetails } from "@/utils/fetchDetails";
+import { dataProcessing } from "@/utils/dataProcessing";
 
 export default async function handler(
   req: NextApiRequest,
@@ -42,19 +43,21 @@ export default async function handler(
     await fetchDetails(offers, context);
     console.log("Details fetching complete.");
 
+    await dataProcessing(offers);
+    
     console.log("Creating output directories and files...");
-    fs.mkdirSync(`output/screenshots`, { recursive: true });
-    fs.mkdirSync(`output/offers`, { recursive: true });
+    fs.mkdirSync(`public/output/screenshots`, { recursive: true });
+    fs.mkdirSync(`public/output/offers`, { recursive: true });
 
     await page.screenshot({
-      path: `output/screenshots/${name}_${timestamp}.jpg`,
+      path: `public/output/screenshots/${name}_${timestamp}.jpg`,
       fullPage: true,
     });
     console.log(
-      `Screenshot saved at: output/screenshots/${name}_${timestamp}.jpg`
+      `Screenshot saved at: public/output/screenshots/${name}_${timestamp}.jpg`
     );
 
-    const filePath = `output/offers/${name}_${timestamp}.json`;
+    const filePath = `public/output/offers/${name}_${timestamp}.json`;
     await fs.promises.writeFile(
       filePath,
       JSON.stringify({ offers }, null, 2),

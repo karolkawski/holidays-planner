@@ -8,4 +8,5 @@ export interface IOffer {
   type?: string;
   dates?: string | null;
   flight?: string | null;
+  from: string
 }

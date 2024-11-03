@@ -2,11 +2,15 @@ import { IOffer } from "@/types/Offer";
 import { Page } from "playwright";
 
 export async function fetchVisibleItems(page: Page): Promise<IOffer[]> {
-  return page.$$eval(".item", (allProducts) => {
+  return page.$$eval(".item", (offers) => {
     const data: IOffer[] = [];
 
-    allProducts.forEach((product) => {
+    offers.forEach((product) => {
       try {
+
+        const isOffer = !!product.querySelector(
+            ".item__header .item__price"
+          );
         const isSoldout = !!product.querySelector(
           ".item__header .item__soldout"
         );
@@ -25,7 +29,7 @@ export async function fetchVisibleItems(page: Page): Promise<IOffer[]> {
         );
         const url = urlElement ? urlElement.getAttribute("href") : null;
 
-        if (title && added && url) {
+        if (isOffer && title && added && url) {
           data.push({ isSoldout, title, added, url, checked: false });
         }
       } catch (error) {

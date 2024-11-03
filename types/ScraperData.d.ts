@@ -1,4 +1,6 @@
-export interface IScraperData {
+interface IScraperData {
   title: string;
-  content: string;
+  status: string;
+  date: string;
+  offersLength: number;
 }

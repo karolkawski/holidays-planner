@@ -1,59 +1,77 @@
 import { chromium } from "playwright";
 import { NextApiRequest, NextApiResponse } from "next";
-import fs from 'fs'
+import fs from "fs";
 import { autoScroll } from "@/utils/autoScroll";
 import { fetchVisibleItems } from "@/utils/fetchVisibleOffers";
+import { fetchDetails } from "@/utils/fetchDetails";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   const url = process.env.URL;
-  const name = process.env.NAME
+  const name = process.env.NAME;
 
   if (!url) {
-    return;
+    console.error("Error: URL environment variable is not set.");
+    return res
+      .status(400)
+      .json({ error: "URL environment variable is not set." });
   }
+
+  const timestamp = new Date().toISOString();
 
   try {
     const browser = await chromium.launch();
     const context = await browser.newContext();
     const page = await context.newPage();
 
-    // Navigate to a website
+    // Navigate to the website
+    console.log(`Navigating to: ${url}`);
     await page.goto(url);
 
     const pageTitle = await page.title();
-    console.log("Page title: ", pageTitle);
+    console.log("Page title:", pageTitle);
 
     await autoScroll(page);
 
     const offers = await fetchVisibleItems(page);
+    console.log(`Collected ${offers.length} offers.`);
 
-    console.log("COLLECTED", offers.length);
-    console.log("GET DETAILS");
+    console.log("Fetching details for collected offers...");
+    await fetchDetails(offers, context);
+    console.log("Details fetching complete.");
 
-    console.log("OFFERS");
-    console.table(offers);
+    console.log("Creating output directories and files...");
+    fs.mkdirSync(`output/screenshots`, { recursive: true });
+    fs.mkdirSync(`output/offers`, { recursive: true });
 
     await page.screenshot({
-      path: `output/screenshot/${name}.png`,
+      path: `output/screenshots/${name}_${timestamp}.jpg`,
       fullPage: true,
     });
-
-    fs.writeFile(
-      `output/offers/${name}${new Date().toISOString()}.json`,
-      JSON.stringify({offers}),
-      "utf8",
-      () => {
-        console.log(`Created file with data:, ${new Date().toISOString()}`);
-      }
+    console.log(
+      `Screenshot saved at: output/screenshots/${name}_${timestamp}.jpg`
     );
 
+    const filePath = `output/offers/${name}_${timestamp}.json`;
+    await fs.promises.writeFile(
+      filePath,
+      JSON.stringify({ offers }, null, 2),
+      "utf8"
+    );
+    console.log(`Created file with offer data: ${filePath}`);
+
     await browser.close();
-    res.status(200).json({ title: pageTitle, content: "Scraping successful" });
+    console.log("Browser closed successfully.");
+    return res.status(200).json({
+      title: pageTitle,
+      status: "Scraping successful",
+      date: timestamp,
+      offersLength: offers.length || 0,
+    });
   } catch (error) {
     console.error("Scraping failed:", error);
-    res.status(500).json({ error: "Scraping failed" });
+    return res.status(500).json({ error: "Scraping failed" });
   }
 }

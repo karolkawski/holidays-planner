@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import ScraperComponent from "./ScraperComponent";
 import { IScraperData } from "@/types/ScraperData";
 
-
 function Form() {
   const [start, setStart] = useState(false);
   const [data, setData] = useState<IScraperData | null>(null);
@@ -16,7 +15,7 @@ function Form() {
     async function fetchData() {
       const response = await fetch("/api/scrape");
       const result = await response.json();
-      setData(result);
+      setData(result)
     }
     console.log("fetch data");
     if (start) fetchData();

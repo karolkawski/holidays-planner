@@ -1,4 +1,4 @@
-interface IScraperData {
+export interface IScraperResponseItem {
   title: string;
   status: string;
   date: string;

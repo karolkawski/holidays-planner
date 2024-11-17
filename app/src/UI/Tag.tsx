@@ -1,6 +1,6 @@
 import React from "react";
 
-const Tag = ({ tag}) => {
+const Tag = ({ tag }: { tag: string }) => {
 
     if (!tag) {
         return <></>

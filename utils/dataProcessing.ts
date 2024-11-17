@@ -1,11 +1,11 @@
-import { IOffer } from "@/types/Offer";
+import { IOffer } from "@/types/IOffer";
 
 export async function dataProcessing(offers: IOffer[]): Promise<IOffer[]> {
   const processedOffers: IOffer[] = []; // Typowanie przetworzonych ofert
 
   offers.forEach((offer) => {
     const { title, published } = offer; // Poprawiona destrukturyzacja
-    offer.from = getFrom(title); // Użycie funkcji getFrom
+    offer.from = getFrom(`${title}`); // Użycie funkcji getFrom
     offer.published = formatTime(published)
     processedOffers.push(offer);
   });
@@ -56,36 +56,54 @@ const getFrom = (title: string | null): string => {
 };
 
 
-
-
 const parsePublished = (dateString: string) => {
 
-    const monthMap = {
-    stycznia: 0,
-    lutego: 1,
-    marca: 2,
-    kwietnia: 3,
-    maja: 4,
-    czerwca: 5,
-    lipca: 6,
-    sierpnia: 7,
-    września: 8,
-    października: 9,
-    listopada: 10,
-    grudnia: 11,
+    const monthMap: Record<
+      | "stycznia"
+      | "lutego"
+      | "marca"
+      | "kwietnia"
+      | "maja"
+      | "czerwca"
+      | "lipca"
+      | "sierpnia"
+      | "września"
+      | "października"
+      | "listopada"
+      | "grudnia",
+      number
+    > = {
+      stycznia: 0,
+      lutego: 1,
+      marca: 2,
+      kwietnia: 3,
+      maja: 4,
+      czerwca: 5,
+      lipca: 6,
+      sierpnia: 7,
+      września: 8,
+      października: 9,
+      listopada: 10,
+      grudnia: 11,
     };
 
-    const [datePart, timePart] = dateString.split(", ");
-    const [day, monthName, year] = datePart.split(" ");
-    const [hour, minute] = timePart.split(":");
+    try {
+      
+      const [datePart, timePart] = dateString.split(", ");
+      const [day, monthName, year] = datePart.split(" ");
+      const [hour, minute] = timePart.split(":");
+  
+      const month = monthMap[monthName as keyof typeof monthMap];
+      const dayNumber = parseInt(day, 10);
+      const yearNumber = parseInt(year, 10);
+      const hourNumber = parseInt(hour, 10);
+      const minuteNumber = parseInt(minute, 10);
+  
+      return new Date(
+      Date.UTC(yearNumber, month, dayNumber, hourNumber, minuteNumber)
+      );
+    } catch (error) {
+      return new Date();
+    }
 
-    const month = monthMap[monthName];
-    const dayNumber = parseInt(day, 10);
-    const yearNumber = parseInt(year, 10);
-    const hourNumber = parseInt(hour, 10);
-    const minuteNumber = parseInt(minute, 10);
-
-    return new Date(
-    Date.UTC(yearNumber, month, dayNumber, hourNumber, minuteNumber)
-    );
 };

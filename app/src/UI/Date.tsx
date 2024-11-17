@@ -1,10 +1,12 @@
 import React from "react";
 
-const Date = ({ date }) => {
+const Date = ({ date }: { date: string }) => {
   return (
-    <div className="bg-white p-4 m-4 shadow-md rounded">
-    <p className="text-lg font-semibold text-gray-800">Data: <span id="formattedDate">  {date}</span></p>
-</div>
+    <div className="py-3 shadow-md rounded">
+      <p className="text-lg font-semibold text-white">
+        Data: <span id="formattedDate"> {date}</span>
+      </p>
+    </div>
   );
 };
 

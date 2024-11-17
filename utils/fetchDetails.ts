@@ -1,4 +1,4 @@
-import { IOffer } from "@/types/Offer";
+import { IOffer } from "@/types/IOffer";
 import { BrowserContext, Page } from "playwright";
 import pLimit from "p-limit";
 

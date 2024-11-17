@@ -1,17 +1,18 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import fs from "fs";
 import path from "path";
+import { IOffer } from "@/types/IOffer";
 
 function getDateFromFileName(fileName: string): string {
-  const datePart = fileName.split("_")[1].split(".")[0]; // '2024-11-02T16:54:36.191Z'
-  return datePart.split("T")[0]; // '2024-11-02'
+  const datePart = fileName.split("_")[1].split(".")[0];
+  return datePart.split("T")[0];
 }
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  console.log(req);
+  const { date } = req.query;
 
   try {
     const offersDir = path.join(process.cwd(), "public", "output", "offers");
@@ -22,44 +23,57 @@ export default async function handler(
       "screenshots"
     );
 
-    const offersFiles = await fs.promises.readdir(offersDir);
+    const offersFiles: string[] = await fs.promises.readdir(offersDir);
 
     const screenshotsFiles = await fs.promises.readdir(screenshotsDir);
 
-    const files = {
+    const files: {offers: string[], screenshots: string[]} = {
       offers: [],
-      screenshots: []
-    }
+      screenshots: [],
+    };
     if (offersFiles.length > 0) {
-      const filesByDate: Record<string, { date: string; offers: any }> = {};
+      const filesByDate: Record<string, IOffer[]> = {};
+      const offersByDate: Record<string, any[]> = {};
 
       await Promise.all(
         offersFiles.map(async (name) => {
-          const date = getDateFromFileName(name);
+          const fileDate = getDateFromFileName(name);
 
-          if (date) {
-            const offerPath = path.join(offersDir, name);
-            const offerContent = await fs.promises.readFile(offerPath, "utf8");
-            const data = JSON.parse(offerContent);
+          if (fileDate) {
+            if (!date || new Date(fileDate) >= new Date(date as string)) {
+              const offerPath = path.join(offersDir, name);
+              const offerContent = await fs.promises.readFile(
+                offerPath,
+                "utf8"
+              );
+              const data = JSON.parse(offerContent);
 
-    
-            if (
-              !filesByDate[date] ||
-              new Date(data.date) > new Date(filesByDate[date].date)
-            ) {
-              filesByDate[date] = [...data.offers];
+              offersByDate[fileDate] = offersByDate[fileDate] || [];
+              if (data.offers) {
+                offersByDate[fileDate].push(...data.offers);
+              }
+
+              filesByDate[fileDate] = offersByDate[fileDate];
               files.offers.push(name);
             }
           }
         })
       );
 
+      // Sort filesByDate by date (newest to oldest)
+      const sortedFilesByDate = Object.keys(filesByDate)
+        .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+        .reduce<Record<string, IOffer[]>>((acc, key) => {
+          acc[key] = filesByDate[key];
+          return acc;
+        }, {});
+
       return res.status(200).json({
         files: {
           offers: files.offers,
           screenshots: screenshotsFiles,
         },
-        offers: filesByDate,
+        offers: sortedFilesByDate,
       });
     } else {
       return res.status(200).json({
@@ -67,7 +81,7 @@ export default async function handler(
           offers: [],
           screenshots: screenshotsFiles,
         },
-        offers: [],
+        offers: []
       });
     }
   } catch (error) {

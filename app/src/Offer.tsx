@@ -1,10 +1,15 @@
-
 import { IOffer } from "@/types/IOffer";
-import { Button, Card, CardBody, CardFooter, CardHeader } from "@nextui-org/react";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+} from "@nextui-org/react";
 import Price from "./UI/Price";
 import Tag from "./UI/Tag";
 
-function Offer({ offer, index }: { offer: IOffer, index: number }) {
+function Offer({ offer, index }: { offer: IOffer; index: number }) {
   if (!offer) {
     return null;
   }

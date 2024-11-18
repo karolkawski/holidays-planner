@@ -5,6 +5,7 @@ import {
   CardHeader,
   Divider,
 } from "@nextui-org/react";
+import { config } from "../config";
 import ListWrapper from "../src/ListWrapper";
 
 export default function History() {
@@ -15,7 +16,7 @@ export default function History() {
           <CardHeader>Files raw data</CardHeader>
           <Divider />
           <CardBody>
-            <ListWrapper />
+            <ListWrapper config={config} />
           </CardBody>
           <Divider />
           <CardFooter></CardFooter>

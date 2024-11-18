@@ -3,17 +3,22 @@ import { Spinner } from "@nextui-org/react";
 
 function ResponseInfo({
   data,
+  start
 }: {
   data:
     IScraperResponseItem[]
     | null;
+    start: boolean
 }) {
-  if (!data) {
+  if (start) {
     return (
       <div className="flex flex-col justify-center items-center mt-10">
         <Spinner />
       </div>
     );
+  }
+  if (!data) {
+    return null
   }
   return (
     <div className="flex flex-col justify-center items-center">

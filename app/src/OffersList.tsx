@@ -5,25 +5,25 @@ import Offer from "./Offer";
 
 function OffersList({ offers }: { offers: IOffer[] }) {
   if (!offers) {
-    return null;
+    return;
   }
 
   return (
-      <Accordion>
-        {Object.entries(offers).map(([date, offerArray]) => (
-          <AccordionItem
-            key={date}
-            title={<Date date={date} />}
-            aria-label={`Offers for ${date}`}
-          >
-            {offerArray &&
-              Array.isArray(offerArray) &&
-              offerArray.map((offer, index) => (
-                <Offer offer={offer} index={index}/>
-              ))}
-          </AccordionItem>
-        ))}
-      </Accordion>
+    <Accordion>
+      {Object.entries(offers).map(([date, offerArray]) => (
+        <AccordionItem
+          key={date}
+          title={<Date date={date} />}
+          aria-label={`Offers for ${date}`}
+        >
+          {offerArray &&
+            Array.isArray(offerArray) &&
+            offerArray.map((offer, index) => (
+              <Offer key={index} offer={offer} index={index} />
+            ))}
+        </AccordionItem>
+      ))}
+    </Accordion>
   );
 }
 

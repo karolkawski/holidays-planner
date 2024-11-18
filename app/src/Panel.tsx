@@ -15,28 +15,17 @@ import Datalist from "./OffersList";
 import { IScraperResponseItem } from "@/types/IScraperResponseItem";
 import { IConfig } from "@/types/IConfig";
 
-function Panel({
-  config
-}: {
-  config: IConfig
-}) {
+function Panel({ config }: { config: IConfig }) {
   const [start, setStart] = useState(false);
-  const [data, setData] = useState<
-    IScraperResponseItem[] | null
-  >(null);
+  const [data, setData] = useState<IScraperResponseItem[] | null>(null);
   const [includeOffers1, setIncludeOffers1] = useState(true);
   const [includeOffers2, setIncludeOffers2] = useState(true);
-  const [files, setFiles] = useState<{
-    offers: string[] | null;
-    screenshots: string[] | null;
-  } | null>(null);
   const [offers, setOffers] = useState<IOffer[] | null>(null);
 
   const handleRunScape = () => {
     setStart(true);
-    setData(null)
-    setFiles(null)
-    setOffers(null)
+    setData(null);
+    setOffers(null);
   };
 
   const handleCheckboxChange1 = (
@@ -60,17 +49,24 @@ function Panel({
       setData(result);
       fetchLastOffers();
       setStart(false);
-
     }
     if (start) fetchData();
   }, [start]);
 
   async function fetchLastOffers() {
     const today = new Date().toISOString().split("T")[0];
-    const response = await fetch(`/api/offers?date=${today}`);
+    const names = [
+      config.scrapper.domains[0].name,
+      config.scrapper.domains[1].name,
+    ];
+
+    const response = await fetch(
+      `/api/offers?date=${today}&name=${encodeURIComponent(
+        JSON.stringify(names)
+      )}`
+    );
     const result = await response.json();
-    const { files, offers } = result;
-    setFiles(files);
+    const { offers } = result;
     setOffers(offers);
   }
 
@@ -87,7 +83,7 @@ function Panel({
           handleRunScape={handleRunScape}
           config={config}
         />
-        <DataInfo data={data} />
+        <DataInfo start={start} data={data} />
       </CardBody>
       <Divider />
       <CardFooter className="flex-none w-full">

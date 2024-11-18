@@ -1,3 +1,4 @@
+import { IConfig } from "@/types/IConfig";
 import { Button } from "@nextui-org/react";
 import { ChangeEventHandler, MouseEventHandler } from "react";
 
@@ -7,17 +8,16 @@ function Form({
   includeOffers2,
   handleCheckboxChange2,
   handleRunScape,
-  config
+  config,
 }: {
   includeOffers1: boolean;
   handleCheckboxChange1: ChangeEventHandler<HTMLInputElement>;
   includeOffers2: boolean;
   handleCheckboxChange2: ChangeEventHandler<HTMLInputElement>;
   handleRunScape: MouseEventHandler<HTMLButtonElement>;
-  config: any
+  config: IConfig;
 }) {
   const scrapperCofigs = config.scrapper.domains;
-  const scrapperCofigsLength = scrapperCofigs.length;
 
   const webConfigNo0 = scrapperCofigs[0];
   const webConfigNo1 = scrapperCofigs[1];

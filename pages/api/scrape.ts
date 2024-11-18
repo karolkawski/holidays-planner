@@ -7,6 +7,7 @@ import { dataProcessing } from "@/utils/dataProcessing";
 import { config } from "../../app/config";
 import { IConfigDomain } from "@/types/IConfig";
 import { IScraperResponseItem } from "@/types/IScraperResponseItem";
+import { IOffer } from "@/types/IOffer";
 
 export default async function handler(
   req: NextApiRequest,
@@ -45,7 +46,7 @@ export default async function handler(
   }
 
   const timestamp = new Date().toISOString();
-  let response: {
+  const response: {
     title: string;
     status: string;
     date: string;
@@ -87,7 +88,7 @@ const start = async (
   timestamp: string,
   response: IScraperResponseItem[],
   config: IConfigDomain,
-  options: any
+  options: {vItem: number}
 ) => {
   const { url, name } = config;
   console.log(`Navigating to: ${url}`);
@@ -109,21 +110,22 @@ const prepareFiles = async (
   page: Page,
   name: string,
   timestamp: string,
-  offers: any
+  offers: IOffer[]
 ) => {
   console.log("Creating output directories and files...");
-  fs.mkdirSync(`public/output/screenshots`, { recursive: true });
-  fs.mkdirSync(`public/output/offers`, { recursive: true });
+  const basePath = "public/output/"
+  fs.mkdirSync(`${basePath}screenshots/${name}`, { recursive: true });
+  fs.mkdirSync(`${basePath}offers/${name}`, { recursive: true });
 
   await page.screenshot({
-    path: `public/output/screenshots/${name}_${timestamp}.jpg`,
+    path: `${basePath}screenshots/${name}/${timestamp}.jpg`,
     fullPage: true,
   });
   console.log(
-    `Screenshot saved at: public/output/screenshots/${name}_${timestamp}.jpg`
+    `Screenshot saved at: ${basePath}screenshots/${name}/${timestamp}.jpg`
   );
 
-  const filePath = `public/output/offers/${name}_${timestamp}.json`;
+  const filePath = `${basePath}offers/${name}/${timestamp}.json`;
   await fs.promises.writeFile(
     filePath,
     JSON.stringify({ offers }, null, 2),
@@ -133,7 +135,7 @@ const prepareFiles = async (
 };
 
 
-const scrapeWebsite = async (page: Page, url: string, options: any) => {
+const scrapeWebsite = async (page: Page, url: string, options: {vItem: number}) => {
   await page.goto(url as string);
 
   const pageTitle = await page.title();
@@ -141,7 +143,7 @@ const scrapeWebsite = async (page: Page, url: string, options: any) => {
 
   await autoScroll(page);
 
-  const offers = await fetchVisibleItems(page, options.vItems);
+  const offers = await fetchVisibleItems(page, options.vItem);
   console.log(`Collected ${offers.length} offers.`);
   return {pageTitle, offers}
 }

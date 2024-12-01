@@ -1,8 +1,8 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import fs from "fs";
-import path from "path";
-import { IOffer } from "@/types/IOffer";
-import { getDateFromFileName } from "@/utils/getDateFromFileName";
+import { NextApiRequest, NextApiResponse } from 'next';
+import fs from 'fs';
+import path from 'path';
+import { IOffer } from '@/interfaces/IOffer';
+import { getDateFromFileName } from '@/utils/getDateFromFileName';
 
 export default async function handler(
   req: NextApiRequest,
@@ -13,9 +13,9 @@ export default async function handler(
   let names: string[] = [];
   if (name) {
     try {
-      names = typeof name === "string" ? JSON.parse(name) : [];
+      names = typeof name === 'string' ? JSON.parse(name) : [];
       if (!Array.isArray(names)) {
-        throw new Error("Invalid name parameter");
+        throw new Error('Invalid name parameter');
       }
     } catch {
       return res.status(400).json({ error: "Invalid 'name' parameter format" });
@@ -29,15 +29,15 @@ export default async function handler(
   try {
     const offersMainDir = path.join(
       process.cwd(),
-      "public",
-      "output",
-      "offers"
+      'public',
+      'output',
+      'offers'
     );
     const screenshotsMainDir = path.join(
       process.cwd(),
-      "public",
-      "output",
-      "screenshots"
+      'public',
+      'output',
+      'screenshots'
     );
 
     const result = {
@@ -85,7 +85,7 @@ export default async function handler(
                 const offerPath = path.join(folderPath, fileName);
                 const offerContent = await fs.promises.readFile(
                   offerPath,
-                  "utf8"
+                  'utf8'
                 );
                 const data = JSON.parse(offerContent);
 
@@ -125,7 +125,7 @@ export default async function handler(
 
     res.status(200).json(result);
   } catch (error) {
-    console.error("Getting offers and screenshots failed:", error);
-    res.status(500).json({ error: "Getting offers and screenshots failed" });
+    console.error('Getting offers and screenshots failed:', error);
+    res.status(500).json({ error: 'Getting offers and screenshots failed' });
   }
 }

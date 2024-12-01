@@ -1,19 +1,14 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { IOffer } from "@/types/IOffer";
-import Form from "./Form";
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  CardFooter,
-  Divider,
-} from "@nextui-org/react";
-import DataInfo from "./ResponseInfo";
-import Datalist from "./OffersList";
-import { IScraperResponseItem } from "@/types/IScraperResponseItem";
-import { IConfig } from "@/types/IConfig";
+import { useEffect, useState } from 'react';
+import { IOffer } from '@/interfaces/IOffer';
+import Form from './Form';
+import { Card, CardHeader, CardBody, CardFooter, Divider } from '@nextui-org/react';
+import DataInfo from './ResponseInfo';
+import Datalist from './OffersList';
+import { IScraperResponseItem } from '@/interfaces/IScraperResponseItem';
+import { IConfig } from '@/interfaces/IConfig';
+import Filters from './Filters';
 
 function Panel({ config }: { config: IConfig }) {
   const [start, setStart] = useState(false);
@@ -21,6 +16,8 @@ function Panel({ config }: { config: IConfig }) {
   const [includeOffers1, setIncludeOffers1] = useState(true);
   const [includeOffers2, setIncludeOffers2] = useState(true);
   const [offers, setOffers] = useState<IOffer[] | null>(null);
+  const names = [config.scrapper.domains[0].name, config.scrapper.domains[1].name];
+  const [sourceFilter, setSourceFilter] = useState<string[]>(names);
 
   const handleRunScape = () => {
     setStart(true);
@@ -28,16 +25,16 @@ function Panel({ config }: { config: IConfig }) {
     setOffers(null);
   };
 
-  const handleCheckboxChange1 = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleCheckboxChange1 = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIncludeOffers1(event.target.checked);
   };
-  const handleCheckboxChange2 = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleCheckboxChange2 = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIncludeOffers2(event.target.checked);
   };
+
+  useEffect(() => {
+    fetchLastOffers();
+  }, []);
 
   useEffect(() => {
     async function fetchData() {
@@ -54,22 +51,21 @@ function Panel({ config }: { config: IConfig }) {
   }, [start]);
 
   async function fetchLastOffers() {
-    const today = new Date().toISOString().split("T")[0];
-    const names = [
-      config.scrapper.domains[0].name,
-      config.scrapper.domains[1].name,
-    ];
-
-    const response = await fetch(
-      `/api/offers?date=${today}&name=${encodeURIComponent(
-        JSON.stringify(names)
-      )}`
-    );
+    const today = new Date().toISOString().split('T')[0];
+    const response = await fetch(`/api/offers?date=${today}&name=${encodeURIComponent(JSON.stringify(names))}`);
     const result = await response.json();
     const { offers } = result;
     setOffers(offers);
   }
 
+  const handleClick = (name: string) => {
+    setSourceFilter((prevFilters) => {
+      if (prevFilters.includes(name)) {
+        return prevFilters.filter((item) => item !== name);
+      }
+      return [...prevFilters, name];
+    });
+  };
   return (
     <Card className="bg-gray-800">
       <CardHeader>Settings</CardHeader>
@@ -87,7 +83,12 @@ function Panel({ config }: { config: IConfig }) {
       </CardBody>
       <Divider />
       <CardFooter className="flex-none w-full">
-        {offers && <Datalist offers={offers} />}
+        {offers && (
+          <div className="flex flex-col">
+            <Filters config={config} handleClick={handleClick} sourceFilter={sourceFilter} />
+            <Datalist offers={offers} sourceFilter={sourceFilter} />
+          </div>
+        )}
       </CardFooter>
     </Card>
   );

@@ -1,9 +1,22 @@
-import { IConfig } from "@/types/IConfig";
+import { IConfig } from '@/interfaces/IConfig';
 
+export type CitysType = Record<CityKey, { phases: string[]; name: string }>;
 
+const citys: Record<CityKey, { phases: string[]; name: string }> = {
+  gdansk: {
+    phases: ['z Gdańska', 'lub Gdańska'],
+    name: 'Gdańsk',
+  },
+  warszawa: {
+    phases: ['z Warszawy'],
+    name: 'Warszawa',
+  },
+} as CitysType;
 
-export const config = {
-  mode: "bot", //search | bot
+export type CityKey = 'gdansk' | 'warszawa';
+
+export const config: IConfig = {
+  mode: 'bot', //search | bot
   filters: {
     from: new Date(),
     to: new Date(),
@@ -12,17 +25,18 @@ export const config = {
   scrapper: {
     domains: [
       {
-        url: process.env.URL,
-        type: "offers",
+        url: process.env.URL as string,
+        type: 'offers',
         rss: false,
-        name: process.env.NAME,
+        name: process.env.NAME as string,
       },
       {
-        url: process.env.URL2,
-        type: "offers",
+        url: process.env.URL2 as string,
+        type: 'offers',
         rss: false,
-        name: process.env.NAME2,
+        name: process.env.NAME2 as string,
       },
     ],
+    citys,
   },
-} as IConfig;
+};

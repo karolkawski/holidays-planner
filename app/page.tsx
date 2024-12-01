@@ -1,5 +1,6 @@
-import Panel from "./src/Panel";
-import { config } from "./config";
+import Panel from './src/Panel';
+import { config } from './config';
+import ProcessDataWrapper from './src/ProcessDataWrapper';
 
 export default function Home() {
   const url = process.env.URL?.toUpperCase() || null;
@@ -12,11 +13,8 @@ export default function Home() {
   }
 
   return (
-    <div className="items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main>
-        <Panel config={config} />
-      </main>
-      <footer></footer>
-    </div>
+    <ProcessDataWrapper>
+      <Panel config={config} />
+    </ProcessDataWrapper>
   );
 }

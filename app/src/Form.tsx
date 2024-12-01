@@ -1,6 +1,6 @@
-import { IConfig } from "@/types/IConfig";
-import { Button } from "@nextui-org/react";
-import { ChangeEventHandler, MouseEventHandler } from "react";
+import { IConfig } from '@/interfaces/IConfig';
+import { Button } from '@nextui-org/react';
+import { ChangeEventHandler, MouseEventHandler } from 'react';
 
 function Form({
   includeOffers1,

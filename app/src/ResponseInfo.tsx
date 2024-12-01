@@ -1,14 +1,12 @@
-import { IScraperResponseItem } from "@/types/IScraperResponseItem";
-import { Spinner } from "@nextui-org/react";
+import { IScraperResponseItem } from '@/interfaces/IScraperResponseItem';
+import { Spinner } from '@nextui-org/react';
 
 function ResponseInfo({
   data,
-  start
+  start,
 }: {
-  data:
-    IScraperResponseItem[]
-    | null;
-    start: boolean
+  data: IScraperResponseItem[] | null;
+  start: boolean;
 }) {
   if (start) {
     return (
@@ -18,7 +16,7 @@ function ResponseInfo({
     );
   }
   if (!data) {
-    return null
+    return null;
   }
   return (
     <div className="flex flex-col justify-center items-center">

@@ -1,4 +1,5 @@
 export interface IOffer {
+  source: string;
   isSoldout: number | boolean;
   title: string | number | null;
   published: string | null;

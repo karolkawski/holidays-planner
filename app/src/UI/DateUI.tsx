@@ -1,6 +1,6 @@
-import React from "react";
+import React from 'react';
 
-const Date = ({ date }: { date: string }) => {
+const DateUI = ({ date }: { date: string }) => {
   return (
     <div className="py-3 shadow-md rounded">
       <p className="text-lg font-semibold text-white">
@@ -10,4 +10,4 @@ const Date = ({ date }: { date: string }) => {
   );
 };
 
-export default Date;
+export default DateUI;

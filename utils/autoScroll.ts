@@ -1,4 +1,4 @@
-import { Page } from "playwright";
+import { Page } from 'playwright';
 
 export async function autoScroll(page: Page) {
   await page.evaluate(async () => {

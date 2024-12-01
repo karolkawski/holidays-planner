@@ -1,4 +1,4 @@
-import { IFile } from "@/types/IFile";
+import { IFile } from '@/interfaces/IFile';
 
 function FilesList({ files }: { files: IFile | null }) {
   if (!files) {

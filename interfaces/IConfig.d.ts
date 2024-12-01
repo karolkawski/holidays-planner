@@ -1,3 +1,5 @@
+import { CitysType } from '@/app/config';
+
 export interface IConfig {
   mode: string;
   filters: {
@@ -7,14 +9,13 @@ export interface IConfig {
   };
   scrapper: {
     domains: IConfigDomain[];
+    citys: CitysType;
   };
 }
 
-
-
 export interface IConfigDomain {
-    url: string
-    type: 'offers'
-    rss: boolean
-    name: string
+  url: string;
+  type: 'offers';
+  rss: boolean;
+  name: string;
 }

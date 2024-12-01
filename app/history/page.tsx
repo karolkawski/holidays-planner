@@ -1,27 +1,8 @@
-import {
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
-  Divider,
-} from "@nextui-org/react";
-import { config } from "../config";
-import ListWrapper from "../src/ListWrapper";
+import { config } from '../config';
+import History from '../src/History';
 
-export default function History() {
-  return (
-    <main className="flex flex-col w-full">
-      <div className="min-h-screen">
-        <Card className="m-10 p-3 bg-gray-800">
-          <CardHeader>Files raw data</CardHeader>
-          <Divider />
-          <CardBody>
-            <ListWrapper config={config} />
-          </CardBody>
-          <Divider />
-          <CardFooter></CardFooter>
-        </Card>
-      </div>
-    </main>
-  );
+export default function HistoryPage() {
+  const names = [config.scrapper.domains[0].name, config.scrapper.domains[1].name];
+
+  return <History names={names} config={config} />;
 }

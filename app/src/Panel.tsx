@@ -9,6 +9,7 @@ import Datalist from './OffersList';
 import { IScraperResponseItem } from '@/interfaces/IScraperResponseItem';
 import { IConfig } from '@/interfaces/IConfig';
 import Filters from './Filters';
+import LogComponent from './LogComponent';
 
 function Panel({ config }: { config: IConfig }) {
   const [start, setStart] = useState(false);
@@ -67,30 +68,43 @@ function Panel({ config }: { config: IConfig }) {
     });
   };
   return (
-    <Card className="bg-gray-800">
-      <CardHeader>Settings</CardHeader>
-      <Divider />
-      <CardBody>
-        <Form
-          includeOffers1={includeOffers1}
-          handleCheckboxChange1={handleCheckboxChange1}
-          includeOffers2={includeOffers2}
-          handleCheckboxChange2={handleCheckboxChange2}
-          handleRunScape={handleRunScape}
-          config={config}
-        />
-        <DataInfo start={start} data={data} />
-      </CardBody>
-      <Divider />
-      <CardFooter className="flex-none w-full">
-        {offers && (
-          <div className="flex flex-col">
-            <Filters config={config} handleClick={handleClick} sourceFilter={sourceFilter} />
-            <Datalist offers={offers} sourceFilter={sourceFilter} />
-          </div>
-        )}
-      </CardFooter>
-    </Card>
+    <div className="flex items-start">
+      <Card className="bg-gray-800 m-5 flex-1 min-w-96 min-h-48">
+        <CardHeader>Settings</CardHeader>
+        <Divider />
+        <CardBody>
+          <Form
+            includeOffers1={includeOffers1}
+            handleCheckboxChange1={handleCheckboxChange1}
+            includeOffers2={includeOffers2}
+            handleCheckboxChange2={handleCheckboxChange2}
+            handleRunScape={handleRunScape}
+            config={config}
+          />
+          <DataInfo start={start} data={data} />
+        </CardBody>
+        <Divider />
+        <CardFooter className="flex-none w-full">
+          {offers ? (
+            <div className="flex flex-col">
+              <Filters config={config} handleClick={handleClick} sourceFilter={sourceFilter} />
+              <Datalist offers={offers} sourceFilter={sourceFilter} />
+            </div>
+          ) : (
+            <></>
+          )}
+        </CardFooter>
+      </Card>
+      <Card className="bg-gray-800 m-5 flex-1 min-w-96 min-h-48 max-h-svh overflow-y-auto">
+        <CardHeader>Logs</CardHeader>
+        <Divider />
+        <CardBody>
+          <LogComponent />
+        </CardBody>
+        <Divider />
+        <CardFooter className="flex-none w-full"></CardFooter>
+      </Card>
+    </div>
   );
 }
 

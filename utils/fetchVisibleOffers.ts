@@ -43,12 +43,13 @@ export async function fetchVisibleItems(page: Page, type: number): Promise<IOffe
               url,
               checked: false,
               from: '',
+              merchant: '',
               source: '',
               price: price || null,
             });
           }
         } catch (error) {
-          console.warn('Error while processing product data:', error);
+          console.warn('[Scraper] Error while processing product data:', error);
         }
       });
 

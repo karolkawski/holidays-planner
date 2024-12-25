@@ -5,6 +5,7 @@ export interface IOffer {
   published: string | null;
   url: string | nnull;
   checked: boolean;
+  merchant: string | null | undefined;
   price?: string | null | undefined;
   type?: string;
   dates?: string | null;

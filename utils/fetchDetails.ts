@@ -19,7 +19,7 @@ export async function fetchDetails(offers: IOffer[], context: BrowserContext) {
 
           await extractOfferDetails(page, offer);
         } catch (e) {
-          console.error(`Offer processing error: ${url}`, e);
+          console.error(`[Scraper] Offer processing error: ${url}`, e);
         } finally {
           await page.close();
         }
@@ -37,10 +37,12 @@ async function extractOfferDetails(page: Page, offer: IOffer) {
     offer.type = 'offer';
     offer.checked = true;
     offer.dates = dates;
+    offer.merchant = undefined;
   } catch {
     offer.checked = true;
     offer.type = 'article';
-    offer.price = undefined;
+    offer.price = await page.$eval('.thread-price', (el: HTMLElement) => el.textContent);
+    offer.merchant = await page.$eval('[data-t="merchantLink"]', (el: HTMLElement) => el.textContent);
 
     await extractAlternativeDetails(page, offer);
   }
@@ -56,6 +58,6 @@ async function extractAlternativeDetails(page: Page, offer: IOffer) {
     offer.checked = true;
     offer.flight = flightPrice;
   } catch {
-    console.warn(`Additional details not exist: ${offer.url}`);
+    console.warn(`[Scraper] Additional details not exist: ${offer.url}`);
   }
 }

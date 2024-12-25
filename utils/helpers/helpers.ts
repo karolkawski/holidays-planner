@@ -1,4 +1,5 @@
 import { CityKey, CitysType } from '@/app/config';
+import { IMonthMap } from '@/interfaces/IMonthMap';
 
 export const formatTime = (date: string | null) => {
   if (!date) {
@@ -27,8 +28,6 @@ export const getFrom = (title: string | null, citys: CitysType): string => {
   const foundCityKey = cityKeys.find((cityKey) => citys[cityKey].phases.some((phase) => title.includes(phase)));
   return foundCityKey ? citys[foundCityKey].name : '';
 };
-
-type IMonthMap = Record<'stycznia' | 'lutego' | 'marca' | 'kwietnia' | 'maja' | 'czerwca' | 'lipca' | 'sierpnia' | 'września' | 'października' | 'listopada' | 'grudnia', number>;
 
 export const parsePublished = (dateString: string) => {
   const monthMap: IMonthMap = {

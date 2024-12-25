@@ -4,10 +4,7 @@ import path from 'path';
 import { IOffer } from '@/interfaces/IOffer';
 import { getDateFromFileName } from '@/utils/getDateFromFileName';
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { date, name } = req.query;
 
   let names: string[] = [];
@@ -27,18 +24,8 @@ export default async function handler(
   }
 
   try {
-    const offersMainDir = path.join(
-      process.cwd(),
-      'public',
-      'output',
-      'offers'
-    );
-    const screenshotsMainDir = path.join(
-      process.cwd(),
-      'public',
-      'output',
-      'screenshots'
-    );
+    const offersMainDir = path.join(process.cwd(), 'public', 'output', 'offers');
+    const screenshotsMainDir = path.join(process.cwd(), 'public', 'output', 'screenshots');
 
     const result = {
       files: { offers: [] as string[], screenshots: [] as string[] },
@@ -46,25 +33,14 @@ export default async function handler(
       screenshots: {} as Record<string, string[]>,
     };
 
-    const processFolder = async (
-      mainDir: string,
-      folderName: string,
-      fileProcessor: (
-        fileDate: string,
-        fileName: string,
-        folderPath: string
-      ) => Promise<void>
-    ) => {
+    const processFolder = async (mainDir: string, folderName: string, fileProcessor: (fileDate: string, fileName: string, folderPath: string) => Promise<void>) => {
       const folderPath = path.join(mainDir, folderName);
       const files = await fs.promises.readdir(folderPath);
 
       await Promise.all(
         files.map(async (fileName) => {
           const fileDate = getDateFromFileName(fileName);
-          if (
-            fileDate &&
-            (!date || new Date(fileDate) >= new Date(date as string))
-          ) {
+          if (fileDate && (!date || new Date(fileDate) >= new Date(date as string))) {
             await fileProcessor(fileDate, fileName, folderPath);
           }
         })
@@ -78,24 +54,17 @@ export default async function handler(
         offersFolders
           .filter((folderName) => names.includes(folderName))
           .map((folderName) =>
-            processFolder(
-              offersMainDir,
-              folderName,
-              async (fileDate, fileName, folderPath) => {
-                const offerPath = path.join(folderPath, fileName);
-                const offerContent = await fs.promises.readFile(
-                  offerPath,
-                  'utf8'
-                );
-                const data = JSON.parse(offerContent);
+            processFolder(offersMainDir, folderName, async (fileDate, fileName, folderPath) => {
+              const offerPath = path.join(folderPath, fileName);
+              const offerContent = await fs.promises.readFile(offerPath, 'utf8');
+              const data = JSON.parse(offerContent);
 
-                if (data.offers) {
-                  result.offers[fileDate] = result.offers[fileDate] || [];
-                  result.offers[fileDate].push(...data.offers);
-                }
-                result.files.offers.push(fileName);
+              if (data.offers) {
+                result.offers[fileDate] = result.offers[fileDate] || [];
+                result.offers[fileDate].push(...data.offers);
               }
-            )
+              result.files.offers.push(fileName);
+            })
           )
       );
     };
@@ -107,21 +76,18 @@ export default async function handler(
         screenshotsFolders
           .filter((folderName) => names.includes(folderName))
           .map((folderName) =>
-            processFolder(
-              screenshotsMainDir,
-              folderName,
-              async (fileDate, fileName) => {
-                result.screenshots[fileDate] =
-                  result.screenshots[fileDate] || [];
-                result.screenshots[fileDate].push(fileName);
-                result.files.screenshots.push(fileName);
-              }
-            )
+            processFolder(screenshotsMainDir, folderName, async (fileDate, fileName) => {
+              result.screenshots[fileDate] = result.screenshots[fileDate] || [];
+              result.screenshots[fileDate].push(fileName);
+              result.files.screenshots.push(fileName);
+            })
           )
       );
     };
 
     await Promise.all([processOffers(), processScreenshots()]);
+
+    console.info(`[Scraper] Fetch today offers from files`);
 
     res.status(200).json(result);
   } catch (error) {

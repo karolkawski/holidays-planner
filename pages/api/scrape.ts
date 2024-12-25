@@ -21,19 +21,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const webConfigNo0: IConfigDomain = scrapperCofigs[0];
   const webConfigNo1: IConfigDomain = scrapperCofigs[1];
 
-  console.log(`Offers: ${webConfigNo0.name}: ${offers1} | ${webConfigNo1.name}: ${offers2}`);
+  const protocol = req.headers['x-forwarded-proto'] || 'http';
+  const host = req.headers.host;
+  const serverUrl = `${protocol}://${host}`;
+  console.info(`[Scraper] Offers: ${webConfigNo0.name}: ${offers1} | ${webConfigNo1.name}: ${offers2}`);
 
   if (!offers1 && !offers2) {
     return res.status(400).json({ error: 'Select any offer.' });
   }
 
   if ((offers1 && !webConfigNo0) || !webConfigNo0.url) {
-    console.error('Error: URL environment variable is not set.');
+    console.error('[Scraper] Error: URL environment variable is not set.');
     return res.status(400).json({ error: 'URL environment variable is not set.' });
   }
 
   if ((offers2 && !webConfigNo1) || !webConfigNo1.url) {
-    console.error('Error: URL2 environment variable is not set.');
+    console.error('[Scraper] Error: URL2 environment variable is not set.');
     return res.status(400).json({ error: 'URL2 environment variable is not set.' });
   }
 
@@ -53,37 +56,45 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const page = await context.newPage();
 
     if (offers1) {
-      await start(page, timestamp, response, webConfigNo0, context, {
+      await start(serverUrl, page, timestamp, response, webConfigNo0, context, {
         vItem: 1,
         citys: config.scrapper.citys,
       });
     }
 
     if (offers2) {
-      await start(page, timestamp, response, webConfigNo1, context, {
+      await start(serverUrl, page, timestamp, response, webConfigNo1, context, {
         vItem: 2,
         citys: config.scrapper.citys,
       });
     }
 
     await browser.close();
-    console.log('Browser closed successfully.');
+    console.info('[Scraper] Browser closed successfully.');
 
     return res.status(200).json(response);
   } catch (error) {
-    console.error('Scraping failed:', error);
+    console.error('[Scraper] Scraping failed:', error);
     return res.status(500).json({ error: 'Scraping failed' });
   }
 }
 
-const start = async (page: Page, timestamp: string, response: IScraperResponseItem[], config: IConfigDomain, context: BrowserContext, options: { vItem: number; citys: CitysType }) => {
+const start = async (
+  serverUrl: string,
+  page: Page,
+  timestamp: string,
+  response: IScraperResponseItem[],
+  config: IConfigDomain,
+  context: BrowserContext,
+  options: { vItem: number; citys: CitysType }
+) => {
   const { url, name } = config;
-  console.log(`Navigating to: ${url}`);
+  console.info(`[Scraper] Navigating to: ${url}`);
   const { pageTitle, offers } = await scrapeWebsite(page, url, context, options);
 
   await dataProcessing(offers, name, options.citys);
 
-  await prepareFiles(page, name, timestamp, offers, url);
+  await prepareFiles(serverUrl, page, name, timestamp, offers, url);
 
   response.push({
     title: pageTitle,
@@ -93,9 +104,10 @@ const start = async (page: Page, timestamp: string, response: IScraperResponseIt
   });
 };
 
-const prepareFiles = async (page: Page, name: string, timestamp: string, offers: IOffer[], url: string) => {
-  console.log('Creating output directories and files...');
-  const basePath = 'public/output/';
+const prepareFiles = async (serverUrl: string, page: Page, name: string, timestamp: string, offers: IOffer[], url: string) => {
+  console.info('[Scraper] Creating output directories and files...');
+
+  const basePath = `public/output/`;
   fs.mkdirSync(`${basePath}screenshots/${name}`, { recursive: true });
   fs.mkdirSync(`${basePath}offers/${name}`, { recursive: true });
   fs.mkdirSync(`${basePath}raw/${name}`, { recursive: true });
@@ -104,7 +116,7 @@ const prepareFiles = async (page: Page, name: string, timestamp: string, offers:
     path: `${basePath}screenshots/${name}/${timestamp}.jpg`,
     fullPage: true,
   });
-  console.log(`Screenshot saved at: ${basePath}screenshots/${name}/${timestamp}.jpg`);
+  console.info(`[Scraper] Screenshot saved at: ${serverUrl}${basePath}screenshots/${name}/${timestamp}.jpg`);
 
   const filePath = `${basePath}offers/${name}/${timestamp}.json`;
   await fs.promises.writeFile(filePath, JSON.stringify({ offers }, null, 2), 'utf8');
@@ -114,7 +126,7 @@ const prepareFiles = async (page: Page, name: string, timestamp: string, offers:
 
   await fs.writeFileSync(rawPath, htmlContent);
 
-  console.log(`Created file with offer data: ${filePath}`);
+  console.info(`[Scraper] Created file with offer data: ${serverUrl}${filePath}`);
 };
 
 const scrapeWebsite = async (page: Page, url: string, context: BrowserContext, options: { vItem: number; citys: CitysType }) => {

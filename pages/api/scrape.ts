@@ -9,6 +9,7 @@ import { IConfigDomain } from '@/interfaces/IConfig';
 import { IScraperResponseItem } from '@/interfaces/IScraperResponseItem';
 import { IOffer } from '@/interfaces/IOffer';
 import { fetchDetails } from '@/utils/fetchDetails';
+import { getDateFromFileName } from '@/utils/getDateFromFileName';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { offers1, offers2 } = req.query;
@@ -118,8 +119,48 @@ const prepareFiles = async (serverUrl: string, page: Page, name: string, timesta
   });
   console.info(`[Scraper] Screenshot saved at: ${serverUrl}${basePath}screenshots/${name}/${timestamp}.jpg`);
 
-  const filePath = `${basePath}offers/${name}/${timestamp}.json`;
-  await fs.promises.writeFile(filePath, JSON.stringify({ offers }, null, 2), 'utf8');
+  const folderPath = `${basePath}offers/${name}`;
+  const filePath = `${folderPath}/${timestamp}.json`;
+
+  console.log('🚀 ~ prepareFiles ~ filePath:', filePath);
+  const dayDate = getDateFromFileName(timestamp);
+  console.log('🚀 ~ prepareFiles ~ day:', dayDate);
+  //szukam plikow zawierajacych date
+  const files = await fs.promises.readdir(folderPath);
+
+  if (!dayDate) {
+    return;
+  }
+
+  const filteredFiles = files.filter((file) => {
+    return file.includes(dayDate);
+  });
+
+  console.log('🚀 ~ filteredFiles ~ filteredFiles:', filteredFiles);
+
+  if (filteredFiles.length > 0) {
+    //take offers from all files without duplications by name or url
+    console.info(`[Scraper] File from this date exist`);
+
+    for (const file of filteredFiles) {
+      const content = await fs.promises.readFile(`${folderPath}/${file}`, 'utf-8');
+      const parsedContent = JSON.parse(content).offers || [];
+      offers = [...offers, ...parsedContent];
+      offers = removeDuplicatesByUrl(offers);
+    }
+
+    await fs.promises.writeFile(filePath, JSON.stringify({ offers }, null, 2), 'utf8');
+    console.info(`[Scraper] Save merged files`, offers.length || 0);
+
+    for (const file of filteredFiles) {
+      console.info(`[Scraper] Remove old files ${folderPath}/${file}`);
+      await fs.promises.unlink(`${folderPath}/${file}`);
+    }
+  } else {
+    console.info(`[Scraper] File from this date not exist`);
+    await fs.promises.writeFile(filePath, JSON.stringify({ offers }, null, 2), 'utf8');
+  }
+
   const domain = new URL(url).hostname;
   const rawPath = `${basePath}raw/${name}/${domain}.html`;
   const htmlContent = await page.content();
@@ -137,6 +178,18 @@ const scrapeWebsite = async (page: Page, url: string, context: BrowserContext, o
   await autoScroll(page);
 
   const offers = await fetchVisibleItems(page, options.vItem);
-  await fetchDetails(offers, context);
+  await fetchDetails(offers, options.vItem, context);
   return { pageTitle, offers };
 };
+
+function removeDuplicatesByUrl(offers: IOffer[]): IOffer[] {
+  const uniqueOffers = new Map<string | null, IOffer>();
+
+  offers.forEach((offer) => {
+    if (!uniqueOffers.has(offer.url)) {
+      uniqueOffers.set(offer.url, offer);
+    }
+  });
+
+  return Array.from(uniqueOffers.values());
+}

@@ -4,7 +4,7 @@ import pLimit from 'p-limit';
 
 const limit = pLimit(5);
 
-export async function fetchDetails(offers: IOffer[], context: BrowserContext) {
+export async function fetchDetails(offers: IOffer[], vItems: number, context: BrowserContext) {
   await Promise.all(
     offers.map((offer) =>
       limit(async () => {
@@ -17,7 +17,12 @@ export async function fetchDetails(offers: IOffer[], context: BrowserContext) {
         try {
           await page.goto(url, { timeout: 30000, waitUntil: 'networkidle' });
 
-          await extractOfferDetails(page, offer);
+          if (vItems === 1) {
+            await extractOfferDetails1(page, offer);
+          }
+          if (vItems === 2) {
+            await extractOfferDetails2(page, offer);
+          }
         } catch (e) {
           console.error(`[Scraper] Offer processing error: ${url}`, e);
         } finally {
@@ -28,7 +33,7 @@ export async function fetchDetails(offers: IOffer[], context: BrowserContext) {
   );
 }
 
-async function extractOfferDetails(page: Page, offer: IOffer) {
+async function extractOfferDetails1(page: Page, offer: IOffer) {
   try {
     const price = await page.$eval('.promo__price--amount', (el: HTMLElement) => el.textContent);
     const dates = await page.$eval('.promo__dates div div', (el: HTMLElement) => el.textContent);
@@ -39,13 +44,17 @@ async function extractOfferDetails(page: Page, offer: IOffer) {
     offer.dates = dates;
     offer.merchant = undefined;
   } catch {
-    offer.checked = true;
-    offer.type = 'article';
-    offer.price = await page.$eval('.thread-price', (el: HTMLElement) => el.textContent);
-    offer.merchant = await page.$eval('[data-t="merchantLink"]', (el: HTMLElement) => el.textContent);
-
     await extractAlternativeDetails(page, offer);
   }
+}
+
+async function extractOfferDetails2(page: Page, offer: IOffer) {
+  try {
+    offer.price = await page.$eval('.thread-price', (el: HTMLElement) => el.textContent);
+    offer.type = 'offer';
+    offer.checked = true;
+    offer.merchant = await page.$eval('[data-t="merchantLink"]', (el: HTMLElement) => el.textContent);
+  } catch {}
 }
 
 async function extractAlternativeDetails(page: Page, offer: IOffer) {

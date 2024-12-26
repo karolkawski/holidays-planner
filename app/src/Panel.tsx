@@ -16,7 +16,7 @@ function Panel({ config }: { config: IConfig }) {
   const [data, setData] = useState<IScraperResponseItem[] | null>(null);
   const [includeOffers1, setIncludeOffers1] = useState(true);
   const [includeOffers2, setIncludeOffers2] = useState(true);
-  const [offers, setOffers] = useState<IOffer[] | null>(null);
+  const [offers, setOffers] = useState<{ [date: string]: IOffer[] } | null>(null);
   const names = [config.scrapper.domains[0].name, config.scrapper.domains[1].name];
   const [sourceFilter, setSourceFilter] = useState<string[]>(names);
 

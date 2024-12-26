@@ -4,34 +4,44 @@ import { IOffer } from '@/interfaces/IOffer';
 import Offer from './Offer';
 import { useEffect, useState } from 'react';
 
-function OffersList({ offers, sourceFilter }: { offers: IOffer[]; sourceFilter: string[] }) {
+function OffersList({ offers, sourceFilter = [] }: { offers: { [date: string]: IOffer[] }; sourceFilter: string[] }) {
   const [filtered, setFiltered] = useState<{ [date: string]: IOffer[] } | null>(null);
 
-  if (!offers) {
-    return;
+  if (!offers || typeof offers !== 'object') {
+    return null;
   }
 
   useEffect(() => {
-    if (!offers) return;
+    if (!offers || typeof offers !== 'object') return;
+
     const filteredOffers = Object.entries(offers).reduce(
       (acc, [date, offerArray]) => {
-        const filteredArray = offerArray.filter((offer: IOffer) => sourceFilter.includes(offer.source));
+        if (!Array.isArray(offerArray)) return acc;
+
+        const filteredArray = offerArray.filter((offer: IOffer) => !sourceFilter.length || sourceFilter.includes(offer.source));
+
         if (filteredArray.length > 0) {
           acc[date] = filteredArray;
         }
+
         return acc;
       },
       {} as { [date: string]: IOffer[] }
     );
+    if (JSON.stringify(filteredOffers) !== JSON.stringify(filtered)) {
+      setFiltered(filteredOffers);
+    }
+  }, [offers, sourceFilter, filtered]);
 
-    setFiltered(filteredOffers);
-  }, [offers, sourceFilter]);
+  const dataToRender = filtered || offers;
 
   return (
     <Accordion>
-      {Object.entries(filtered || offers).map(([date, offerArray]) => (
+      {Object.entries(dataToRender).map(([date, offerArray]) => (
         <AccordionItem key={date} title={<DateUI date={date} />} aria-label={`Offers for ${date}`}>
-          {offerArray && Array.isArray(offerArray) && offerArray.map((offer, index) => <Offer key={index} offer={offer} index={index} />)}
+          {offerArray.map((offer, index) => (
+            <Offer key={offer.url || index} offer={offer} index={index} />
+          ))}
         </AccordionItem>
       ))}
     </Accordion>

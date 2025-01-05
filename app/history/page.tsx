@@ -1,8 +1,10 @@
-import { config } from '../config';
-import History from '../src/History';
+import {config} from '../config';
+import History from '@/src/pages/History';
 
 export default function HistoryPage() {
-  const names = [config.scrapper.domains[0].name, config.scrapper.domains[1].name];
-
-  return <History names={names} config={config} />;
+  return (
+    <main className="flex flex-col w-full">
+      <History config={config} />
+    </main>
+  );
 }

@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--foreground, #000);
+  background-color: var(--background, #f8f9fa);
+}
+
+#root,
+#__next {
+  height: 100%;
+}
+
+/* Date picker override modal styles */
+[data-slot='grid-body'] td:not([aria-disabled='true']) span {
+  color: #0a0a0a;
+}

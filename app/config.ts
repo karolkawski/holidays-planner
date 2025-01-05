@@ -1,8 +1,30 @@
-import { IConfig } from '@/interfaces/IConfig';
+import {IConfig} from '@/src/interfaces/IConfig';
+import {ISelectorConfig} from '@/src/interfaces/ISelectorConfig';
 
-export type CitysType = Record<CityKey, { phases: string[]; name: string }>;
+export type CitysType = Record<CityKey, {phases: string[]; name: string}>;
 
-const citys: Record<CityKey, { phases: string[]; name: string }> = {
+const selectorsConfig: Record<number, ISelectorConfig> = {
+  1: {
+    baseSelector: '.item',
+    isOfferHandler: '.item__header .item__price',
+    isSoldOutHandler: '.item__header .item__soldout',
+    titleHandler: '.item__content .item__title',
+    publishedHandler: '.item__content .item__date',
+    urlHandler: '.item__content .item__title a',
+    priceHandler: null,
+  },
+  2: {
+    baseSelector: 'article',
+    isOfferHandler: null,
+    isSoldOutHandler: null,
+    titleHandler: '.threadGrid-title a',
+    publishedHandler: '.threadGrid-headerMeta .text--b',
+    urlHandler: '.threadGrid-title a',
+    priceHandler: '.threadItemCard-price',
+  },
+};
+
+const citys: Record<CityKey, {phases: string[]; name: string}> = {
   gdansk: {
     phases: ['z Gdańska', 'lub Gdańska'],
     name: 'Gdańsk',
@@ -16,12 +38,14 @@ const citys: Record<CityKey, { phases: string[]; name: string }> = {
 export type CityKey = 'gdansk' | 'warszawa';
 
 export const config: IConfig = {
-  mode: 'bot', //search | bot
+  version: 'bot', //search | bot
+  mode: 'both', //both | db | files
   filters: {
     from: new Date(),
     to: new Date(),
     where: null,
   },
+  selectorsConfig,
   scrapper: {
     domains: [
       {

@@ -13,9 +13,21 @@
     --foreground: #ededed;
   }
 }
-
+html,
 body {
-  color: var(--foreground);
-  background: var(--background);
+  margin: 0;
+  padding: 0;
   font-family: Arial, Helvetica, sans-serif;
+  color: var(--foreground, #000);
+  background-color: var(--background, #f8f9fa);
+}
+
+#root,
+#__next {
+  height: 100%;
+}
+
+/* Date picker override modal styles */
+[data-slot='grid-body'] td:not([aria-disabled='true']) span {
+  color: #0a0a0a;
 }

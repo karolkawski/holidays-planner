@@ -1,8 +1,4 @@
-import Panel from '../src/pages/Panel';
-import {config} from './config';
-import ProcessDataWrapper from '../src/utils/ProcessDataWrapper';
-
-export default function Home() {
+const ProcessDataWrapper = ({children}: {children: React.ReactNode}) => {
   const url = process.env.URL?.toUpperCase() || null;
   const name = process.env.NAME?.toUpperCase() || null;
   const url2 = process.env.URL2?.toUpperCase() || null;
@@ -12,9 +8,7 @@ export default function Home() {
     return <></>;
   }
 
-  return (
-    <ProcessDataWrapper>
-      <Panel config={config} />
-    </ProcessDataWrapper>
-  );
-}
+  return <>{children}</>;
+};
+
+export default ProcessDataWrapper;

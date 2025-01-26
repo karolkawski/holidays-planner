@@ -3,7 +3,13 @@
 import {useEffect, useState} from 'react';
 import {IOffer} from '@/src/interfaces/IOffer';
 import Form from '@/src/components/Form';
-import {Card, CardHeader, CardBody, CardFooter, Divider} from '@nextui-org/react';
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  CardFooter,
+  Divider,
+} from '@nextui-org/react';
 import Response from '@/src/UI/Response';
 import Offers from '@/src/components/Lists/Offers';
 import {IScraperResponseItem} from '@/src/interfaces/IScraperResponseItem';
@@ -17,7 +23,10 @@ function Panel({config}: {config: IConfig}) {
   const [includeOffers1, setIncludeOffers1] = useState(true);
   const [includeOffers2, setIncludeOffers2] = useState(true);
   const [offers, setOffers] = useState<{[date: string]: IOffer[]} | null>(null);
-  const names = [config.scrapper.domains[0].name, config.scrapper.domains[1].name];
+  const names = [
+    config.scrapper.domains[0].name,
+    config.scrapper.domains[1].name,
+  ];
   const [sourceFilter, setSourceFilter] = useState<string[]>(names);
 
   const handleRunScape = () => {
@@ -26,10 +35,14 @@ function Panel({config}: {config: IConfig}) {
     setOffers(null);
   };
 
-  const handleCheckboxChange1 = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCheckboxChange1 = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setIncludeOffers1(event.target.checked);
   };
-  const handleCheckboxChange2 = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCheckboxChange2 = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setIncludeOffers2(event.target.checked);
   };
 
@@ -76,7 +89,9 @@ function Panel({config}: {config: IConfig}) {
     const names = ['fly4free', 'pepper'];
 
     try {
-      const response = await fetch(`/api/offer?date=${today}&name=${encodeURIComponent(JSON.stringify(names))}`);
+      const response = await fetch(
+        `/api/offer?date=${today}&name=${encodeURIComponent(JSON.stringify(names))}`
+      );
 
       if (!response.ok) {
         throw new Error('Failed to fetch offers');
@@ -123,8 +138,17 @@ function Panel({config}: {config: IConfig}) {
         <CardFooter className="flex-none w-full">
           {offers ? (
             <div className="flex flex-col">
-              <Filters config={config} handleClick={handleClick} sourceFilter={sourceFilter} />
-              <Offers offers={offers} sourceFilter={sourceFilter} />
+              <Filters
+                config={config}
+                handleClick={handleClick}
+                sourceFilter={sourceFilter}
+              />
+              <Offers
+                offers={offers}
+                sourceFilter={sourceFilter}
+                cityFilter={[]}
+                priceFilter={{min: 0, max: 10000}}
+              />
             </div>
           ) : (
             <></>

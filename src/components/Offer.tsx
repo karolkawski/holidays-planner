@@ -1,5 +1,12 @@
 import {IOffer} from '@/src/interfaces/IOffer';
-import {Card, CardBody, CardFooter, CardHeader, Chip, Link} from '@nextui-org/react';
+import {
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  Chip,
+  Link,
+} from '@nextui-org/react';
 import Price from '@/src/UI/Price';
 import Tag from '@/src/UI/Tag';
 
@@ -29,7 +36,7 @@ function Offer({offer, index}: {offer: IOffer; index: number}) {
               <b>Flight price:</b> {offer.flight || '---'}
             </p>
           </div>
-          {offer.price && <Price amount={parseInt(offer.price, 10)} />}
+          <Price amount={parseInt(offer.price || '0', 10)} />
         </div>
       </CardBody>
       <CardFooter className="">

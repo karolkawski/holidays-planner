@@ -29,7 +29,7 @@ function Offer({offer, index}: {offer: IOffer; index: number}) {
               <b>Flight price:</b> {offer.flight || '---'}
             </p>
           </div>
-          {offer.price && <Price amount={parseInt(offer.price, 10)} />}
+          {offer.price && <Price amount={offer.price} />}
         </div>
       </CardBody>
       <CardFooter className="">

@@ -60,6 +60,10 @@ export const parsePublished = (dateString: string) => {
   }
 };
 
-export const parseFromCalendarToDate = (date: {from: CalendarDate; to: CalendarDate}, key: 'from' | 'to') => {
-  return new Date(date[key].year, date[key].month !== 0 ? date[key].month - 1 : 0, date[key].day).toISOString().split('T')[0];
+export const parseFromCalendarToDate = (date: {from: CalendarDate; to: CalendarDate}, key: 'from' | 'to'): string => {
+  const calendarDate = date[key];
+  if (calendarDate.month < 1 || calendarDate.month > 12) {
+    throw new Error('Invalid month');
+  }
+  return new Date(calendarDate.year, calendarDate.month - 1, calendarDate.day + 1).toISOString().split('T')[0];
 };

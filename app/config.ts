@@ -33,9 +33,17 @@ const citys: Record<CityKey, {phases: string[]; name: string}> = {
     phases: ['z Warszawy'],
     name: 'Warszawa',
   },
+  poznan: {
+    phases: ['z Poznania', 'Poznań'],
+    name: 'Poznań',
+  },
+  krakow: {
+    phases: ['z Krakowa', 'Kraków'],
+    name: 'Kraków',
+  },
 } as CitysType;
 
-export type CityKey = 'gdansk' | 'warszawa';
+export type CityKey = 'gdansk' | 'warszawa' | 'poznan' | 'krakow';
 
 export const config: IConfig = {
   version: 'bot', //search | bot

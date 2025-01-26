@@ -12,7 +12,7 @@ function History({config}: {config: IConfig}) {
   const [domain1, domain2] = configScrapper.domains;
   const names = [domain1.name, domain2.name];
   const [sourceFilter, setSourceFilter] = useState<string[]>(names);
-  const [date, setDate] = useState<{from: CalendarDate; to: CalendarDate}>({from: parseDate('2023-01-01'), to: today(getLocalTimeZone())});
+  const [date, setDate] = useState<{from: CalendarDate; to: CalendarDate}>({from: parseDate('2024-01-01'), to: today(getLocalTimeZone())});
 
   const handleDate = (date: CalendarDate, option: 'from' | 'to') => {
     setDate((prevFilters) => ({

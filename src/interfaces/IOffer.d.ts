@@ -7,7 +7,7 @@ export interface IOffer {
   url: string | null;
   checked: boolean;
   merchant: string | null | undefined;
-  price?: string | null | undefined;
+  price?: number;
   type?: string;
   dates?: string | null;
   flight?: string | null;
